@@ -102,7 +102,9 @@ const builtinAsar = {
   async createPackageWithOptions(srcDir, destAsar, options = {}) {
     let offset = 0;
     const chunks = [];
-    const unpackMatcher = options.unpackDir ? (relPosix => relPosix.includes('chrome-devtools-mcp')) : () => false;
+    const unpackMatcher = options.unpackedSet
+      ? (relPosix => options.unpackedSet.has('/' + relPosix))
+      : (options.unpackDir ? (relPosix => /node_modules\/chrome-devtools-mcp\/[^/]+\//.test(relPosix) || /^node_modules\/chrome-devtools-mcp\/(build|skills)$/.test(relPosix)) : () => false);
 
     function build(currentDir, relPosix) {
       const files = {};

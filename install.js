@@ -211,13 +211,15 @@ async function install(options = {}) {
       }
     }
 
-    const hasUnpacked = originalEntries.some(file => {
+    const unpackedSet = new Set();
+    for (const file of originalEntries) {
       const s = asar.statFile(sourceArchive, file.slice(1));
-      return s && s.unpacked;
-    });
+      if (s && s.unpacked) unpackedSet.add(file.replaceAll('\\', '/'));
+    }
+    const hasUnpacked = unpackedSet.size > 0;
 
     if (hasUnpacked) {
-      await asar.createPackageWithOptions(staging, packed, { unpackDir: '**/chrome-devtools-mcp' });
+      await asar.createPackageWithOptions(staging, packed, { unpackDir: '**/chrome-devtools-mcp', unpackedSet });
     } else {
       await asar.createPackageWithOptions(staging, packed, {});
     }
